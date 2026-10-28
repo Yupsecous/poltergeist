@@ -69,6 +69,12 @@ class ScanTest(unittest.TestCase):
         self.assertEqual(chr(0x430), finding.text)
         self.assertIn("CYRILLIC + LATIN", finding.detail)
 
+    def test_a_greek_mu_before_a_latin_unit_is_a_known_false_positive(self):
+        self.assertEqual(["mixed-script"], kinds("latency: 12 " + chr(0x3BC) + "s\n"))
+
+    def test_the_micro_sign_is_not_a_mixed_script(self):
+        self.assertEqual([], kinds("latency: 12 " + chr(0xB5) + "s\n"))
+
     def test_single_script_words_are_not_mixed(self):
         self.assertEqual([], kinds("Привет мир, γειά σου\n"))
 
