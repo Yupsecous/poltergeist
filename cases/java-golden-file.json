@@ -1,0 +1,16 @@
+{
+  "id": "java-golden-file",
+  "source": "synthetic-heldout",
+  "language": "java",
+  "category": "line-endings",
+  "code": "String actual = String.join(System.lineSeparator(), report.lines());\nString expected = Files.readString(Path.of(\"src/test/resources/report.golden\"));\nassertEquals(expected, actual);\n",
+  "observed": "The golden-file test passes on the Linux CI and fails on a Windows developer machine. The failure message prints two texts that look identical.",
+  "fix_any": [
+    "[\\\"']\\\\n[\\\"']",
+    "normali[sz]e",
+    "replaceAll",
+    "\\.replace\\("
+  ],
+  "gold_fix": "Join with \"\\n\" (the golden file is stored with line feeds), or normalise both sides before comparing.",
+  "note": "written after the platform facts and prompts were frozen in commit 04aa680; those were not changed afterwards"
+}

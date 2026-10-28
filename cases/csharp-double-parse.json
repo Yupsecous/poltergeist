@@ -1,0 +1,14 @@
+{
+  "id": "csharp-double-parse",
+  "source": "synthetic-heldout",
+  "language": "csharp",
+  "category": "encoding-and-locale",
+  "code": "double price = double.Parse(row[\"price\"]);\n",
+  "observed": "double.Parse(\"3.14\") returns 3.14 on the developer's laptop and 314 on a machine whose Windows region is set to Germany.",
+  "fix_any": [
+    "InvariantCulture",
+    "CultureInfo"
+  ],
+  "gold_fix": "double.Parse(row[\"price\"], CultureInfo.InvariantCulture)",
+  "note": "written after the platform facts and prompts were frozen in commit 04aa680; those were not changed afterwards"
+}

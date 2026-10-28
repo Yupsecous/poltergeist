@@ -130,12 +130,17 @@ def _report(args: argparse.Namespace) -> int:
 def _cases(_: argparse.Namespace) -> int:
     cases = bench.load_cases()
     rows = [{"id": c["id"], **bench.lore_only(c)} for c in cases]
-    print(f"{len(cases)} cases ({sum(bench.is_real(c) for c in cases)} from real bugs)\n")
+    held = sum(bench.is_heldout(c) for c in cases)
+    print(f"{len(cases)} cases: {sum(bench.is_real(c) for c in cases)} from real bugs, {held} held out, the rest synthetic\n")
     for case, row in zip(cases, rows):
         mark = "ok " if row["category_ok"] else "-- "
-        print(f"{mark}{case['id']:<24} {case['category']:<22} lore-only guess: {row['category'] or 'none'}")
-    summary = bench.summarize(rows, cases)
-    print(f"\nPlatform facts alone, with no model: {summary['category'] * 100:.0f}% of categories right.")
+        group = "held-out" if bench.is_heldout(case) else "real" if bench.is_real(case) else "dev"
+        print(f"{mark}{case['id']:<24} {group:<9} {case['category']:<22} lookup guess: {row['category'] or 'none'}")
+    s = bench.summarize(rows, cases)
+    print(
+        "\nPlatform facts alone, with no model, name the right category for "
+        f"{s['dev_category'] * 100:.0f}% of the dev cases and {s['heldout_category'] * 100:.0f}% of the held-out cases."
+    )
     return 0
 
 

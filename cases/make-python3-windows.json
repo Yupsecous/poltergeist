@@ -1,0 +1,16 @@
+{
+  "id": "make-python3-windows",
+  "source": "synthetic-heldout",
+  "language": "make",
+  "category": "executable-naming",
+  "code": "PYTHON := python3\n\ntest:\n\t$(PYTHON) -m pytest\n",
+  "observed": "make test works on Linux and macOS. On Windows in Git Bash, with Python installed from python.org: make: python3: No such file or directory",
+  "fix_any": [
+    "PYTHON\\s*\\??:?=\\s*python(?!3)",
+    "\\bpy\\s+-3",
+    "python\\.exe",
+    "\\$\\(shell"
+  ],
+  "gold_fix": "Do not hard-code python3: PYTHON ?= python, or pick it with $(shell which python3 || which python).",
+  "note": "written after the platform facts and prompts were frozen in commit 04aa680; those were not changed afterwards"
+}

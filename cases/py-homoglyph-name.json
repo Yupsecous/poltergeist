@@ -1,0 +1,19 @@
+{
+  "id": "py-homoglyph-name",
+  "source": "synthetic-heldout",
+  "language": "python",
+  "category": "invisible-characters",
+  "code": "def total(data):\n    return sum(d\u0430ta)\n",
+  "observed": "NameError: name 'd\u0430ta' is not defined. The parameter is called data, and the name in the traceback is spelled the same.",
+  "fix_any": [
+    "Cyrillic",
+    "homoglyph",
+    "look-?alike",
+    "U\\+0430",
+    "non-ASCII",
+    "different character",
+    "mixed"
+  ],
+  "gold_fix": "Retype the name: the 'a' in sum(data) is a Cyrillic letter (U+0430), not a Latin one.",
+  "note": "written after the platform facts and prompts were frozen in commit 04aa680; those were not changed afterwards"
+}

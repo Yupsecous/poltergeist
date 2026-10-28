@@ -1,0 +1,16 @@
+{
+  "id": "java-default-charset",
+  "source": "synthetic-heldout",
+  "language": "java",
+  "category": "encoding-and-locale",
+  "code": "String text = new String(Files.readAllBytes(path));\nSystem.out.println(text);\n",
+  "observed": "Names such as M\u00fcller are printed as M\u00c3\u00bcller on the customer's Windows server running Java 11. The same file is read correctly on the developer's Linux machine.",
+  "fix_any": [
+    "UTF_8",
+    "UTF-8",
+    "StandardCharsets",
+    "Charset"
+  ],
+  "gold_fix": "Name the charset: new String(bytes, StandardCharsets.UTF_8).",
+  "note": "written after the platform facts and prompts were frozen in commit 04aa680; those were not changed afterwards"
+}

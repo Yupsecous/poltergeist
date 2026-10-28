@@ -44,6 +44,17 @@ class CasesTest(unittest.TestCase):
             with self.subTest(case=path.name):
                 path.read_bytes().decode("ascii")
 
+    def test_cases_split_into_real_synthetic_and_held_out(self):
+        self.assertEqual(5, sum(bench.is_real(c) for c in self.cases))
+        self.assertEqual(10, sum(bench.is_heldout(c) for c in self.cases))
+        self.assertEqual(15, sum(not bench.is_heldout(c) for c in self.cases))
+        self.assertFalse(any(bench.is_real(c) and bench.is_heldout(c) for c in self.cases))
+
+    def test_held_out_cases_say_when_they_were_written(self):
+        for case in self.cases:
+            if bench.is_heldout(case):
+                self.assertIn("frozen", case["note"])
+
     def test_real_cases_say_where_they_come_from(self):
         real = [c for c in self.cases if bench.is_real(c)]
         self.assertTrue(real)

@@ -1,0 +1,18 @@
+{
+  "id": "node-config-bom",
+  "source": "synthetic-heldout",
+  "language": "javascript",
+  "category": "invisible-characters",
+  "code": "const config = JSON.parse(fs.readFileSync(\"config.json\", \"utf8\"));\n",
+  "observed": "SyntaxError: Unexpected token '\ufeff', \"\ufeff{\"name\": \"demo\"}\" is not valid JSON. config.json looks fine in the editor and in a JSON validator website; it was last edited on a Windows machine.",
+  "fix_any": [
+    "BOM",
+    "byte order mark",
+    "FEFF",
+    "strip",
+    "slice\\(1\\)",
+    "utf-8-sig"
+  ],
+  "gold_fix": "Strip the byte order mark before parsing: text.replace(/^\\uFEFF/, \"\").",
+  "note": "written after the platform facts and prompts were frozen in commit 04aa680; those were not changed afterwards"
+}

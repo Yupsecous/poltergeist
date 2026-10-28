@@ -37,6 +37,11 @@ def is_real(case: dict) -> bool:
     return not case["source"].startswith("synthetic")
 
 
+def is_heldout(case: dict) -> bool:
+    """Written after the platform facts and the prompts were frozen, and never used to adjust them."""
+    return case["source"] == "synthetic-heldout"
+
+
 def fix_matches(case: dict, diagnosis: Diagnosis) -> bool:
     """The fix passes when the answer proposes any of the changes the case accepts. A keyword rubric, not a test run."""
     answer = f"{diagnosis.fix}\n{diagnosis.why}"
@@ -60,15 +65,26 @@ def lore_only(case: dict) -> dict:
 
 def summarize(rows: list[dict], cases: list[dict]) -> dict:
     by_id = {case["id"]: case for case in cases}
+
+    def share(subset: list[dict], key: str = "category_ok") -> float | None:
+        return sum(row[key] for row in subset) / len(subset) if subset else None
+
     real = [row for row in rows if is_real(by_id[row["id"]])]
+    heldout = [row for row in rows if is_heldout(by_id[row["id"]])]
+    dev = [row for row in rows if not is_heldout(by_id[row["id"]])]
     seconds = [row["seconds"] for row in rows if "seconds" in row]
     return {
         "n": len(rows),
-        "category": sum(row["category_ok"] for row in rows) / len(rows),
-        "fix": sum(row["fix_ok"] for row in rows) / len(rows),
-        "valid": sum(row["valid"] for row in rows) / len(rows),
+        "category": share(rows),
+        "fix": share(rows, "fix_ok"),
+        "valid": share(rows, "valid"),
+        "dev_n": len(dev),
+        "dev_category": share(dev),
         "real_n": len(real),
-        "real_category": sum(row["category_ok"] for row in real) / len(real) if real else None,
+        "real_category": share(real),
+        "heldout_n": len(heldout),
+        "heldout_category": share(heldout),
+        "heldout_fix": share(heldout, "fix_ok"),
         "median_seconds": statistics.median(seconds) if seconds else None,
     }
 
@@ -119,18 +135,23 @@ def _pct(value: float | None) -> str:
 
 def markdown_table(results: list[dict]) -> str:
     lines = [
-        "| Model | Mode | Right category | Fix accepted | Valid JSON | Right category on the real bugs | Median seconds |",
-        "| --- | --- | --- | --- | --- | --- | --- |",
+        "| Model | Mode | Category, dev cases | of which real bugs | Category, held-out cases | Fix accepted, held-out | Valid JSON | Median seconds |",
+        "| --- | --- | --- | --- | --- | --- | --- | --- |",
     ]
     for result in results:
         for mode, data in result["modes"].items():
             s = data["summary"]
             lines.append(
-                f"| {result['label']} | {mode} | {_pct(s['category'])} | {_pct(s['fix'])} | {_pct(s['valid'])} "
-                f"| {_pct(s['real_category'])} ({s['real_n']} cases) | {s['median_seconds']:.1f} |"
+                f"| {result['label']} | {mode} | {_pct(s['dev_category'])} ({s['dev_n']}) | {_pct(s['real_category'])} ({s['real_n']}) "
+                f"| {_pct(s['heldout_category'])} ({s['heldout_n']}) | {_pct(s['heldout_fix'])} | {_pct(s['valid'])} "
+                f"| {s['median_seconds']:.1f} |"
             )
     if results:
         s = results[0]["lore_only"]["summary"]
-        lines.append(f"| no model: platform facts only | lookup | {_pct(s['category'])} | - | - | {_pct(s['real_category'])} | - |")
-        lines.append(f"| chance | - | {_pct(1 / len(CATEGORIES))} | - | - | - | - |")
+        lines.append(
+            f"| no model: platform facts only | lookup | {_pct(s['dev_category'])} ({s['dev_n']}) | {_pct(s['real_category'])} ({s['real_n']}) "
+            f"| {_pct(s['heldout_category'])} ({s['heldout_n']}) | - | - | - |"
+        )
+        chance = _pct(1 / len(CATEGORIES))
+        lines.append(f"| chance | - | {chance} | {chance} | {chance} | - | - | - |")
     return "\n".join(lines)

@@ -1,0 +1,16 @@
+{
+  "id": "rust-command-npm",
+  "source": "synthetic-heldout",
+  "language": "rust",
+  "category": "executable-naming",
+  "code": "let status = Command::new(\"npm\").arg(\"install\").status()?;\n",
+  "observed": "cargo run works on Linux and macOS. On Windows: Error: Os { code: 2, kind: NotFound, message: \"The system cannot find the file specified.\" }",
+  "fix_any": [
+    "npm\\.cmd",
+    "\\bcmd(\\.exe)?\\b",
+    "\\bwhich\\b",
+    "PATHEXT"
+  ],
+  "gold_fix": "Run npm.cmd on Windows, or go through cmd /C npm install.",
+  "note": "written after the platform facts and prompts were frozen in commit 04aa680; those were not changed afterwards"
+}

@@ -1,0 +1,18 @@
+{
+  "id": "git-name-collision",
+  "source": "synthetic-heldout",
+  "language": "shell",
+  "category": "path-and-filesystem",
+  "code": "$ git ls-files docs\ndocs/Readme.md\ndocs/readme.md\n",
+  "observed": "A fresh clone on macOS and on Windows is missing one of the two files, and git status reports a clean tree. On Linux both files are there.",
+  "fix_any": [
+    "rename",
+    "remove",
+    "delete",
+    "one of the",
+    "different name",
+    "git mv"
+  ],
+  "gold_fix": "Rename or delete one of the two files so that no two names differ only by letter case.",
+  "note": "written after the platform facts and prompts were frozen in commit 04aa680; those were not changed afterwards"
+}

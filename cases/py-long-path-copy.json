@@ -1,0 +1,18 @@
+{
+  "id": "py-long-path-copy",
+  "source": "synthetic-heldout",
+  "language": "python",
+  "category": "path-and-filesystem",
+  "code": "shutil.copytree(SRC, DEST)\n# DEST is C:\\build\\artifacts\\release followed by ten nested folders named very_long_directory_name\n",
+  "observed": "On Windows: FileNotFoundError: [WinError 3] The system cannot find the path specified: 'C:\\\\build\\\\artifacts\\\\release\\\\very_long_directory_name\\\\very_long_directory_name\\\\...' (the path is 290 characters long and the folders exist). The same copy works on Linux.",
+  "fix_any": [
+    "long path",
+    "MAX_PATH",
+    "\\b260\\b",
+    "\\\\\\\\\\?",
+    "LongPathsEnabled",
+    "shorten"
+  ],
+  "gold_fix": "The path is longer than Windows' 260-character limit: shorten it, enable long paths, or use the \\\\?\\ prefix.",
+  "note": "written after the platform facts and prompts were frozen in commit 04aa680; those were not changed afterwards"
+}

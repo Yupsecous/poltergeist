@@ -1,0 +1,19 @@
+{
+  "id": "go-allowlist-crlf",
+  "source": "synthetic-heldout",
+  "language": "go",
+  "category": "line-endings",
+  "code": "data, _ := os.ReadFile(\"allowlist.txt\")\nfor _, host := range strings.Split(string(data), \"\\n\") {\n\tallowed[host] = true\n}\n// ...\nif !allowed[r.Host] {\n\thttp.Error(w, \"forbidden\", http.StatusForbidden)\n}\n",
+  "observed": "On the developer's Windows machine every request is answered with 403, even for example.com, which is listed in allowlist.txt (checked out there with git's autocrlf on). The same code in the Linux container lets example.com through.",
+  "fix_any": [
+    "TrimSpace",
+    "TrimRight",
+    "TrimSuffix",
+    "\\\\r",
+    "Scanner",
+    "CRLF",
+    "ScanLines"
+  ],
+  "gold_fix": "Trim each host: allowed[strings.TrimSpace(host)] = true, or read the lines with bufio.Scanner.",
+  "note": "written after the platform facts and prompts were frozen in commit 04aa680; those were not changed afterwards"
+}
