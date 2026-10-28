@@ -1,0 +1,14 @@
+{
+  "id": "php-exe-probe",
+  "source": "symfony/ai#2825",
+  "language": "php",
+  "category": "executable-naming",
+  "code": "    private function probeCommand(array $wrapper): array\n    {\n        $lastToken = basename((string) end($wrapper));\n        if (1 === preg_match('/^php(\\d+(\\.\\d+)?)?$/', $lastToken)) {\n            return array_merge($wrapper, ['-d', 'display_errors=0', '-r', self::PROBE_SCRIPT]);\n        }\n",
+  "observed": "Detecting the PHP version works on Linux and macOS. On Windows, when the invocation is 'php.exe vendor/bin/mate', the probe fails to start and the command it ran was: php.exe php -d display_errors=0 -r <script>",
+  "fix_any": [
+    "\\.exe",
+    "\\(\\\\\\.exe\\)\\?"
+  ],
+  "gold_fix": "Let the pattern accept an optional .exe suffix: /^php(\\d+(\\.\\d+)?)?(\\.exe)?$/i.",
+  "note": "code: the lines the pull request changed, as they were before the fix, with the context shown in the diff. observed: the symptom, paraphrased from the pull request description without its explanation."
+}

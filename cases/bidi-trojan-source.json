@@ -1,0 +1,19 @@
+{
+  "id": "bidi-trojan-source",
+  "source": "synthetic",
+  "language": "javascript",
+  "category": "invisible-characters",
+  "code": "function isAdmin(user) {\n  const level = user.level;\n  if (level != \"user\u202e \u2066// Check if admin\u2069 \u2066\") {\n    return true;\n  }\n  return false;\n}\n",
+  "observed": "In code review the condition reads: if (level != \"user\") { // Check if admin. In production isAdmin returns true for every account, including ordinary users.",
+  "fix_any": [
+    "bidi",
+    "U\\+202E",
+    "Trojan",
+    "RLO",
+    "right-to-left",
+    "control character",
+    "override",
+    "hidden"
+  ],
+  "gold_fix": "Remove the bidirectional control characters (U+202E, U+2066, U+2069) from the string literal."
+}

@@ -1,0 +1,17 @@
+{
+  "id": "yaml-zero-width",
+  "source": "synthetic",
+  "language": "python",
+  "category": "invisible-characters",
+  "code": "# settings.yml\nretries: 3\ntimeout\u200b: 30\n\n# app.py\nimport yaml\n\nconfig = yaml.safe_load(open(\"settings.yml\", encoding=\"utf-8\"))\ntimeout = config[\"timeout\"]\n",
+  "observed": "KeyError: 'timeout'. The editor shows the line 'timeout: 30' in settings.yml, copied from a chat message. A search for the word timeout finds it.",
+  "fix_any": [
+    "zero-width",
+    "U\\+200B",
+    "\\\\u200b",
+    "invisible",
+    "hidden character",
+    "non-printing"
+  ],
+  "gold_fix": "Delete the zero-width space (U+200B) after the key and retype the line."
+}

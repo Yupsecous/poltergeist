@@ -1,0 +1,18 @@
+{
+  "id": "nbsp-docker-run",
+  "source": "synthetic",
+  "language": "dockerfile",
+  "category": "invisible-characters",
+  "code": "FROM ubuntu:24.04\nRUN apt-get\u00a0update && apt-get install -y curl\n",
+  "observed": "Step 2/2 : RUN apt-get\u00a0update && apt-get install -y curl\n/bin/sh: 1: apt-get\u00a0update: not found\nThe command returned a non-zero code: 127",
+  "fix_any": [
+    "non-breaking",
+    "nbsp",
+    "U\\+00A0",
+    "\\\\xa0",
+    "regular space",
+    "ordinary space",
+    "normal space"
+  ],
+  "gold_fix": "Replace the non-breaking space (U+00A0) between apt-get and update with a normal space."
+}

@@ -1,0 +1,14 @@
+{
+  "id": "php-eol-agent-prompt",
+  "source": "symfony/ai#2716",
+  "language": "php",
+  "category": "line-endings",
+  "code": "        $result = 'Articles with the following titles were found on Wikipedia:'.\\PHP_EOL;\n        foreach ($titles as $title) {\n            $result .= ' - '.$title.\\PHP_EOL;\n        }\n\n        return $result.\\PHP_EOL.'Use the title of the article with tool \"wikipedia_article\" to load the content.';\n",
+  "observed": "Six tests of the agent package (the memory providers and the system prompt processor) pass on Linux and macOS and fail on Windows. Each compares the text that is sent to the model with an expected string, and the two look the same in the failure output. The text is never written to a console or a file.",
+  "fix_any": [
+    "\\\\n",
+    "line feed"
+  ],
+  "gold_fix": "Use \"\\n\" in text that is sent to a model, on every platform.",
+  "note": "code: the lines the pull request changed, as they were before the fix, with the context shown in the diff. observed: the symptom, paraphrased from the pull request description without its explanation."
+}

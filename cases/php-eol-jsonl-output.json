@@ -1,0 +1,16 @@
+{
+  "id": "php-eol-jsonl-output",
+  "source": "symfony/ai#2713",
+  "language": "php",
+  "category": "line-endings",
+  "code": "        $result = [];\n        $events = [];\n\n        foreach (explode(\\PHP_EOL, $output) as $line) {\n            $line = trim($line);\n\n            if ('' === $line) {\n                continue;\n            }\n        // ...\n            $buffer .= $incrementalOutput;\n            $lines = explode(\\PHP_EOL, $buffer);\n\n            // Keep the last (potentially incomplete) line in the buffer\n            $buffer = array_pop($lines);\n",
+  "observed": "The command line tool prints its answer as JSON Lines, one JSON object per line, and prints it correctly. On Windows getData() returns an empty array and getDataStream() yields nothing. On Linux both work.",
+  "fix_any": [
+    "preg_split",
+    "\\\\R",
+    "[\\\"']\\\\n[\\\"']",
+    "\\\\n"
+  ],
+  "gold_fix": "Split the output with preg_split('/\\R/', ...).",
+  "note": "code: the lines the pull request changed, as they were before the fix, with the context shown in the diff. observed: the symptom, paraphrased from the pull request description without its explanation."
+}

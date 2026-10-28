@@ -1,0 +1,18 @@
+{
+  "id": "py-locale-number",
+  "source": "synthetic",
+  "language": "python",
+  "category": "encoding-and-locale",
+  "code": "import locale\n\nlocale.setlocale(locale.LC_ALL, \"\")\nprice = locale.atof(\"1,234.50\")\n",
+  "observed": "Returns 1234.5 on the developer's machine (en_US). On a customer's machine set to de_DE: ValueError: could not convert string to float",
+  "fix_any": [
+    "setlocale",
+    "LC_NUMERIC",
+    "float\\(",
+    "Decimal",
+    "locale-independent",
+    "fixed format",
+    "C locale"
+  ],
+  "gold_fix": "Parse data with float() or Decimal; use the locale only to display numbers to a person."
+}

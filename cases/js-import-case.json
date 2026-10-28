@@ -1,0 +1,15 @@
+{
+  "id": "js-import-case",
+  "source": "synthetic",
+  "language": "javascript",
+  "category": "path-and-filesystem",
+  "code": "// src/App.js\nimport { Button } from \"./components/button\";\n\n// files on disk: src/components/Button.js\n",
+  "observed": "npm run build passes on the developer's Mac. On the Linux CI server: error TS2307: Cannot find module './components/button'",
+  "fix_any": [
+    "Button[\\\"'\\s/.]",
+    "\\./components/Button",
+    "rename",
+    "\\bcase\\b"
+  ],
+  "gold_fix": "Import \"./components/Button\", matching the file name's case exactly."
+}

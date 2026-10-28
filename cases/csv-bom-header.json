@@ -1,0 +1,16 @@
+{
+  "id": "csv-bom-header",
+  "source": "synthetic",
+  "language": "python",
+  "category": "invisible-characters",
+  "code": "import csv\n\nwith open(\"users.csv\", newline=\"\", encoding=\"utf-8\") as f:\n    for row in csv.DictReader(f):\n        print(row[\"id\"], row[\"name\"])\n",
+  "observed": "KeyError: 'id'. users.csv was exported from Excel as \"CSV UTF-8\". Its header line reads id,name in the editor, and print(list(row)) gives ['\\ufeffid', 'name'].",
+  "fix_any": [
+    "utf-8-sig",
+    "BOM",
+    "byte order mark",
+    "\\\\ufeff",
+    "U\\+FEFF"
+  ],
+  "gold_fix": "Open the file with encoding=\"utf-8-sig\", which drops the byte order mark."
+}

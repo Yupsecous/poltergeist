@@ -1,0 +1,19 @@
+{
+  "id": "sh-shebang-crlf",
+  "source": "synthetic",
+  "language": "bash",
+  "category": "line-endings",
+  "code": "#!/usr/bin/env bash\r\nset -euo pipefail\r\necho \"deploying\"\r\n./build.sh\r\n",
+  "observed": "$ ./deploy.sh\n/usr/bin/env: 'bash\\r': No such file or directory\n(the script was edited on Windows and copied to a Linux server)",
+  "fix_any": [
+    "dos2unix",
+    "CRLF",
+    "line ending",
+    "\\\\r",
+    "\\.gitattributes",
+    "sed -i",
+    "tr -d",
+    "\\beol\\b"
+  ],
+  "gold_fix": "Convert the file to LF line endings (dos2unix) and add a .gitattributes rule: *.sh text eol=lf."
+}

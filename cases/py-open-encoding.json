@@ -1,0 +1,12 @@
+{
+  "id": "py-open-encoding",
+  "source": "synthetic",
+  "language": "python",
+  "category": "encoding-and-locale",
+  "code": "text = open(\"notes.txt\").read()\n",
+  "observed": "Works on Linux and macOS. On a Windows laptop: UnicodeDecodeError: 'charmap' codec can't decode byte 0x9d in position 1021: character maps to <undefined>",
+  "fix_any": [
+    "encoding\\s*=\\s*[\\\"']utf-?8"
+  ],
+  "gold_fix": "open(\"notes.txt\", encoding=\"utf-8\")"
+}

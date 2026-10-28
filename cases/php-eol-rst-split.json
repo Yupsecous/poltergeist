@@ -1,0 +1,16 @@
+{
+  "id": "php-eol-rst-split",
+  "source": "symfony/ai#2707",
+  "language": "php",
+  "category": "line-endings",
+  "code": "    private function splitIntoSections(string $content, string $source, int $depth): iterable\n    {\n        $lines = explode(\\PHP_EOL, $content);\n        $count = \\count($lines);\n        // ...\n                    $sectionLines = \\array_slice($lines, $sectionStartIndex, $i - $sectionStartIndex);\n                    $sectionText = implode(\\PHP_EOL, $sectionLines);\n",
+  "observed": "RstLoader splits a reStructuredText file at its headings on Linux and macOS. On Windows the same file, whose lines end in a plain line feed, comes back as one single section. In the store test suite on Windows 17 tests fail and 1 test errors; on Linux none do.",
+  "fix_any": [
+    "preg_split",
+    "\\\\R",
+    "[\\\"']\\\\n[\\\"']",
+    "str_replace"
+  ],
+  "gold_fix": "Split with preg_split('/\\R/', $content) and join with \"\\n\".",
+  "note": "code: the lines the pull request changed, as they were before the fix, with the context shown in the diff. observed: the symptom, paraphrased from the pull request description without its explanation."
+}

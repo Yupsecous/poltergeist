@@ -1,0 +1,15 @@
+{
+  "id": "py-path-backslash",
+  "source": "synthetic",
+  "language": "python",
+  "category": "path-and-filesystem",
+  "code": "import pandas as pd\n\ndf = pd.read_csv(BASE_DIR + \"\\\\data\\\\input.csv\")\n",
+  "observed": "Works on the developer's Windows PC. On the Linux CI server: FileNotFoundError: [Errno 2] No such file or directory: '/srv/app\\\\data\\\\input.csv'",
+  "fix_any": [
+    "os\\.path\\.join",
+    "pathlib",
+    "Path\\(",
+    "forward slash"
+  ],
+  "gold_fix": "Build the path with pathlib: Path(BASE_DIR) / \"data\" / \"input.csv\"."
+}

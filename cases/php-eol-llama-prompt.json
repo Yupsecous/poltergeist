@@ -1,0 +1,14 @@
+{
+  "id": "php-eol-llama-prompt",
+  "source": "symfony/ai#2727",
+  "language": "php",
+  "category": "line-endings",
+  "code": "        $messages = array_filter($messages, static fn ($message) => '' !== $message);\n\n        return trim(implode(\\PHP_EOL.\\PHP_EOL, $messages)).\\PHP_EOL.\\PHP_EOL.'<|start_header_id|>assistant<|end_header_id|>';\n    }\n    // ...\n        $content = implode(\\PHP_EOL, $contentParts);\n\n        return trim(<<<USER\n            <|start_header_id|>{$message->getRole()->value}<|end_header_id|>\n            {$content}\n            USER);\n",
+  "observed": "LlamaPromptConverterTest passes on Linux and fails on Windows. The failure message prints the expected and the actual prompt and they look identical on screen.",
+  "fix_any": [
+    "\\\\n",
+    "line feed"
+  ],
+  "gold_fix": "Join with \"\\n\\n\" and \"\\n\" instead of PHP_EOL.",
+  "note": "code: the lines the pull request changed, as they were before the fix, with the context shown in the diff. observed: the symptom, paraphrased from the pull request description without its explanation."
+}

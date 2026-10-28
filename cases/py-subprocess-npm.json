@@ -1,0 +1,15 @@
+{
+  "id": "py-subprocess-npm",
+  "source": "synthetic",
+  "language": "python",
+  "category": "executable-naming",
+  "code": "import subprocess\n\nsubprocess.run([\"npm\", \"install\"], check=True)\n",
+  "observed": "Works on Linux and macOS. On Windows: FileNotFoundError: [WinError 2] The system cannot find the file specified",
+  "fix_any": [
+    "shell\\s*=\\s*True",
+    "shutil\\.which",
+    "npm\\.cmd",
+    "\\.cmd"
+  ],
+  "gold_fix": "Resolve the program with shutil.which('npm'), which finds npm.cmd on Windows."
+}
