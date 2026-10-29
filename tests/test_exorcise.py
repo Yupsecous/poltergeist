@@ -73,6 +73,11 @@ class FilesTest(unittest.TestCase):
         self.assertEqual((None, "binary"), exorcise.read_text(binary))
         self.assertEqual((None, "not valid UTF-8"), exorcise.read_text(latin))
 
+    def test_utf16_text_is_named_as_such_and_not_called_binary(self):
+        utf16 = self.root / "table.md"
+        utf16.write_bytes("| a |\n".encode("utf-16"))
+        self.assertEqual((None, exorcise.UTF16), exorcise.read_text(utf16))
+
     def test_symlinks_are_not_followed(self):
         target = self.root / "real.txt"
         target.write_bytes(b"x\n")

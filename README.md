@@ -36,6 +36,8 @@ python -m poltergeist cases                              # the benchmark cases, 
 order marks, zero-width spaces, bidirectional controls, tag characters); joiners, direction marks, soft hyphens and
 look-alike spaces stay unless you pass `--all`, because prose needs some of them. Mixed-script words are reported and never rewritten.
 
+`scan` only reads UTF-8. A file that is binary, larger than 2 MB, a symlink, not valid UTF-8 or UTF-16 is not scanned, and the summary says so and names the text-like ones instead of calling the folder quiet.
+
 Known false positive: a word that mixes Latin letters with Greek ones on purpose, such as a microsecond or ohm unit typed with the Greek letter, is reported as mixed-script.
 
 ## The model part
@@ -72,6 +74,36 @@ whether a model generalises.
 The fix is scored with a keyword rubric (`fix_any` in each case), not by running the fix. It tells you whether the answer proposes the accepted
 change, not whether the change works. The cases are small and written by one person; read the numbers as a smoke test of small
 models on this task, not as a leaderboard.
+
+## Results
+
+Measured on a CPU-only desktop (i7-8700, 64 GB) with llama.cpp build b11963, 4-bit GGUF files, temperature 0 and a fixed seed.
+The table is [`results/TABLE.md`](results/TABLE.md); every model answer is in `results/*.json`.
+
+| Model | Mode | Category, dev cases | of which real bugs | Category, held-out cases | Fix accepted, held-out | Valid JSON | Median seconds |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| gemma-3-1b | plain | 20% (15) | 0% (5) | 30% (10) | 10% | 100% | 6.1 |
+| gemma-3-1b | grounded | 47% (15) | 20% (5) | 30% (10) | 30% | 100% | 6.7 |
+| gemma-3-4b | plain | 67% (15) | 80% (5) | 40% (10) | 30% | 100% | 17.5 |
+| gemma-3-4b | grounded | 100% (15) | 100% (5) | 40% (10) | 30% | 100% | 20.1 |
+| qwen2.5-3b | plain | 80% (15) | 100% (5) | 80% (10) | 30% | 100% | 11.3 |
+| qwen2.5-3b | grounded | 100% (15) | 100% (5) | 90% (10) | 50% | 100% | 10.2 |
+| no model: platform facts only | lookup | 100% (15) | 100% (5) | 30% (10) | - | - | - |
+| chance | - | 20% | 20% | 20% | - | - | - |
+
+How to read it, with ten held-out cases (one case is ten points):
+
+- **Qwen2.5 3B** names the right class for 8 of 10 held-out cases with the plain prompt and 9 of 10 with the grounded one, against 3 of 10 for the platform facts alone.
+  Of the comparisons I looked at, grounded Qwen against the lookup is the only one where chance is an unlikely explanation (Fisher exact test, p = 0.02, computed after seeing the results).
+- **Gemma 3 4B** gets 4 of 10 either way. That cannot be told apart from the platform facts (3 of 10). It over-answers "line-endings" (9 or 10 of the 25 cases).
+- **Gemma 3 1B** gets 3 of 10, but it answers "path-and-filesystem" for 17 (plain) or 18 (grounded) of all 25 cases, so most of that score is a habit rather than a reading of the code.
+- **Grounding** changed a held-out category answer in two cases only (a byte order mark in a config file, which the 1B and Qwen then got right, and one the 1B then lost). It helped more with the fix: held-out
+  fixes accepted went from 10% to 30% (1B) and from 30% to 50% (Qwen), and stayed at 30% for the 4B model.
+  The grounded 100% on the development cases equals the lookup's, because the facts were written looking at those cases. It shows copying, not skill.
+- **Right label, wrong reason.** The category is scored, the explanation is not. For `git-name-collision` (two files whose names differ only in letter case) the 1B model names the right class with an
+  explanation about path separators, while the 3B and 4B models name the wrong class and say macOS uses CR LF line endings, which it does not.
+- **The same answers come back.** The 1B model was run twice; all 50 answers (class, explanation, fix and token counts) were identical. Only the timings differed.
+- **Four of the five real bugs** are the same class (`PHP_EOL`), so 5 of 5 for Qwen is less than it sounds.
 
 ## Run the benchmark
 

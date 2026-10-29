@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from collections import Counter
 from pathlib import Path
 
 from . import bench, exorcise
@@ -53,6 +54,13 @@ def _scan(args: argparse.Namespace) -> int:
             print(f"\n{total} finding(s) in {len(haunted)} of {len(scanned)} file(s).")
         else:
             print(f"No ghosts in {len(scanned)} file(s). The house is quiet.")
+        skipped = [r for r in reports if r.skipped]
+        if skipped:
+            counts = Counter(r.skipped for r in skipped)
+            print("Not scanned: " + ", ".join(f"{reason} ({n})" for reason, n in sorted(counts.items())) + ".")
+            for r in skipped:
+                if r.skipped in (exorcise.NOT_UTF8, exorcise.UTF16):
+                    print(f"  {r.path}  {r.skipped}")
     threshold = RISK_ORDER[args.fail_on]
     worst = max((RISK_ORDER[f.risk] for r in haunted for f in r.findings), default=-1)
     return 1 if worst >= threshold else 0

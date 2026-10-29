@@ -1,0 +1,836 @@
+{
+  "label": "gemma-3-4b",
+  "model": "gemma-3-4b-it-Q4_K_M.gguf",
+  "date": "2026-10-29",
+  "modes": {
+    "plain": {
+      "summary": {
+        "n": 25,
+        "category": 0.56,
+        "fix": 0.4,
+        "valid": 1.0,
+        "dev_n": 15,
+        "dev_category": 0.6666666666666666,
+        "real_n": 5,
+        "real_category": 0.8,
+        "heldout_n": 10,
+        "heldout_category": 0.4,
+        "heldout_fix": 0.3,
+        "median_seconds": 17.47
+      },
+      "cases": [
+        {
+          "id": "bidi-trojan-source",
+          "valid": true,
+          "category_ok": true,
+          "fix_ok": false,
+          "category": "invisible-characters",
+          "why": "The original code compares the `level` string to the string \"user\". The inserted characters (\u202e \u2066// Check if admin\u2069 \u2066\") are invisible Unicode characters that are causing the comparison to fail, even though the intended comparison is to check if the level is not \"user\".",
+          "fix": "Remove the invisible characters from the string literal: `if (level != ",
+          "seconds": 16.06,
+          "prompt_tokens": 314,
+          "completion_tokens": 104
+        },
+        {
+          "id": "csharp-double-parse",
+          "valid": true,
+          "category_ok": true,
+          "fix_ok": true,
+          "category": "encoding-and-locale",
+          "why": "The discrepancy arises because the German Windows machine's locale is configured to use a comma (,) as the decimal separator instead of a period (.). `double.Parse` interprets the input string based on the current locale, leading to a different parsing result.",
+          "fix": "Use `double.Parse(row[\"price\"], CultureInfo.InvariantCulture)` to parse the string using the invariant culture, which is independent of the current locale.",
+          "seconds": 18.22,
+          "prompt_tokens": 280,
+          "completion_tokens": 128
+        },
+        {
+          "id": "csv-bom-header",
+          "valid": true,
+          "category_ok": false,
+          "fix_ok": false,
+          "category": "encoding-and-locale",
+          "why": "The CSV file was exported from Excel as 'CSV UTF-8', but the Python code assumes the 'id' column is a standard string. Excel's CSV export can introduce Unicode characters (like '\ufeffid') at the beginning of string fields, which are misinterpreted as column headers or invalid characters. This is because the default encoding of the Python script might not be UTF-8, leading to incorrect character interpretation.",
+          "fix": "Add `row['id'].strip()` to remove leading/trailing whitespace and any Unicode characters from the 'id' value before printing.",
+          "seconds": 20.18,
+          "prompt_tokens": 324,
+          "completion_tokens": 145
+        },
+        {
+          "id": "git-name-collision",
+          "valid": true,
+          "category_ok": false,
+          "fix_ok": false,
+          "category": "line-endings",
+          "why": "Git stores line endings (CR LF or LF) as metadata alongside the file content. macOS and Windows typically use CR LF, while Linux uses LF. This discrepancy causes Git to see the files as different when comparing them, leading to the missing file observation and a clean status.",
+          "fix": "Configure Git to use LF line endings: `git config core.autocrlf true`",
+          "seconds": 16.29,
+          "prompt_tokens": 280,
+          "completion_tokens": 107
+        },
+        {
+          "id": "go-allowlist-crlf",
+          "valid": true,
+          "category_ok": true,
+          "fix_ok": true,
+          "category": "line-endings",
+          "why": "The Windows machine likely reads the `allowlist.txt` file with CRLF line endings, while the Linux container reads it with LF line endings. This difference causes `strings.Split` to produce different results, leading to `allowed[host]` not being populated correctly for hosts with CRLF line endings, and thus the 403 error.",
+          "fix": "Add `os.Exit(os.Stdout.SetEncoding(",
+          "seconds": 19.07,
+          "prompt_tokens": 360,
+          "completion_tokens": 117
+        },
+        {
+          "id": "java-default-charset",
+          "valid": true,
+          "category_ok": false,
+          "fix_ok": false,
+          "category": "line-endings",
+          "why": "Windows uses Carriage Return Line Feed (CR LF) line endings, while Linux typically uses just Line Feed (LF). When reading the file on the Windows server, the `Files.readAllBytes` method reads the file as byte arrays containing CR and LF characters, which are then interpreted as separate line endings, resulting in the display of \"M\u00c3\u00bcller\".",
+          "fix": "Add `.lines()` to the code to handle line endings correctly.",
+          "seconds": 17.4,
+          "prompt_tokens": 292,
+          "completion_tokens": 119
+        },
+        {
+          "id": "java-golden-file",
+          "valid": true,
+          "category_ok": true,
+          "fix_ok": false,
+          "category": "line-endings",
+          "why": "Windows uses Carriage Return Line Feed (CR LF) line endings, while Linux uses just Line Feed (LF). The `String.join` method uses LF, so the golden file, which was likely created on Windows and saved with CR LF, will not match.",
+          "fix": "Add `System.lineSeparator()` to the `expected` string to ensure it uses the correct line ending for the current platform.",
+          "seconds": 16.63,
+          "prompt_tokens": 305,
+          "completion_tokens": 111
+        },
+        {
+          "id": "js-import-case",
+          "valid": true,
+          "category_ok": true,
+          "fix_ok": true,
+          "category": "path-and-filesystem",
+          "why": "The Linux CI server likely uses Windows-style line endings (CR LF) in its file paths, while the developer's Mac uses Unix-style line endings (LF). TypeScript's module resolution treats these differently, leading to the 'Cannot find module' error.",
+          "fix": "Ensure all project files, including the `Button.js` component, use LF line endings.",
+          "seconds": 15.65,
+          "prompt_tokens": 293,
+          "completion_tokens": 106
+        },
+        {
+          "id": "make-python3-windows",
+          "valid": true,
+          "category_ok": false,
+          "fix_ok": false,
+          "category": "path-and-filesystem",
+          "why": "Windows uses backslashes (\\) as path separators, while Linux and macOS use forward slashes (/). The `make` command on Windows likely expects the `python3` executable to be located in a path using backslashes, and is therefore unable to find the executable when using forward slashes.",
+          "fix": "Change the `PYTHON` variable to `python3` to use forward slashes.",
+          "seconds": 16.73,
+          "prompt_tokens": 278,
+          "completion_tokens": 111
+        },
+        {
+          "id": "nbsp-docker-run",
+          "valid": true,
+          "category_ok": false,
+          "fix_ok": false,
+          "category": "path-and-filesystem",
+          "why": "The Dockerfile is likely being executed on a system (like Windows) that uses backslashes (\\) as path separators instead of forward slashes (/). This causes the shell to interpret `apt-get` as a separate command, rather than the executable itself, leading to the 'not found' error.",
+          "fix": "Change all backslashes to forward slashes.",
+          "seconds": 15.71,
+          "prompt_tokens": 309,
+          "completion_tokens": 105
+        },
+        {
+          "id": "node-config-bom",
+          "valid": true,
+          "category_ok": false,
+          "fix_ok": false,
+          "category": "line-endings",
+          "why": "The `config.json` file was last edited on a Windows machine, which uses Carriage Return Line Feed (CR LF) line endings. When read on a different OS (likely Linux or macOS) that uses only Line Feed (LF) line endings, the JSON parser interprets the CR characters as part of the string data, leading to the `Unexpected token '\ufeff'` error.",
+          "fix": "Convert the `config.json` file to use only LF line endings.",
+          "seconds": 17.53,
+          "prompt_tokens": 296,
+          "completion_tokens": 123
+        },
+        {
+          "id": "php-eol-agent-prompt",
+          "valid": true,
+          "category_ok": true,
+          "fix_ok": true,
+          "category": "line-endings",
+          "why": "Windows uses Carriage Return Line Feed (CR LF) line endings, while Linux and macOS use just Line Feed (LF). This difference causes the extra characters at the end of the strings to mismatch the expected strings in the tests, leading to false failures.",
+          "fix": "Replace `\r` with `\n` in the PHP code to ensure consistent line endings across platforms.",
+          "seconds": 16.71,
+          "prompt_tokens": 370,
+          "completion_tokens": 104
+        },
+        {
+          "id": "php-eol-jsonl-output",
+          "valid": true,
+          "category_ok": true,
+          "fix_ok": false,
+          "category": "line-endings",
+          "why": "Windows uses Carriage Return Line Feed (CR LF) line endings, while Linux uses just Line Feed (LF). The `explode(\r\n, $output)` call on Windows will split the string incorrectly, leading to unexpected behavior, especially when combined with the subsequent buffer manipulation. getDataStream() likely relies on the correct line ending format.",
+          "fix": "Change `$output` to `$output = str_replace(['\r', '\n'], '', $output);` to remove both CR and LF line endings before processing.",
+          "seconds": 21.59,
+          "prompt_tokens": 380,
+          "completion_tokens": 134
+        },
+        {
+          "id": "php-eol-llama-prompt",
+          "valid": true,
+          "category_ok": true,
+          "fix_ok": true,
+          "category": "line-endings",
+          "why": "Windows uses Carriage Return and Line Feed (CR LF) line endings, while Linux uses just Line Feed (LF). This difference causes the extra `\r` characters to be added to the string, resulting in a different string representation that fails the test on Windows.",
+          "fix": "Modify the code to use `str_replace` to remove the `\r` characters before imploding the array.",
+          "seconds": 17.48,
+          "prompt_tokens": 392,
+          "completion_tokens": 109
+        },
+        {
+          "id": "php-eol-rst-split",
+          "valid": true,
+          "category_ok": true,
+          "fix_ok": false,
+          "category": "line-endings",
+          "why": "Windows typically uses Carriage Return Line Feed (CR LF) line endings, while Linux and macOS use just Line Feed (LF). The `explode()` function in PHP interprets CR LF as two separate line endings, causing it to treat the entire file as a single section on Windows, whereas LF is correctly interpreted as a single line break.",
+          "fix": "Ensure the input string is cleaned of CR LF characters before splitting, for example, by replacing `\r\n` with `\n`.",
+          "seconds": 19.25,
+          "prompt_tokens": 384,
+          "completion_tokens": 128
+        },
+        {
+          "id": "php-exe-probe",
+          "valid": true,
+          "category_ok": false,
+          "fix_ok": false,
+          "category": "path-and-filesystem",
+          "why": "The primary difference lies in line-ending conventions. Windows uses Carriage Return Line Feed (CR LF) for line endings, while Linux and macOS use just Line Feed (LF). The `basename` function, when used on a string with CR LF, returns a different string than when used on a string with LF, causing the regular expression to fail on Windows.",
+          "fix": "Modify the code to normalize line endings to LF before calling `basename` to ensure consistent behavior across operating systems.",
+          "seconds": 19.02,
+          "prompt_tokens": 375,
+          "completion_tokens": 127
+        },
+        {
+          "id": "py-homoglyph-name",
+          "valid": true,
+          "category_ok": false,
+          "fix_ok": false,
+          "category": "encoding-and-locale",
+          "why": "The `data` variable contains a space character, which is represented differently depending on the operating system's default encoding. Specifically, the space is represented as a non-breaking space in the traceback, causing the `sum()` function to treat it as a numerical value, leading to the `NameError`. This is because the `sum()` function is attempting to add the space to the list of numbers.",
+          "fix": "Change the code to `return sum(data)` to remove the space.",
+          "seconds": 17.78,
+          "prompt_tokens": 275,
+          "completion_tokens": 129
+        },
+        {
+          "id": "py-locale-number",
+          "valid": true,
+          "category_ok": true,
+          "fix_ok": true,
+          "category": "encoding-and-locale",
+          "why": "The `locale.setlocale(locale.LC_ALL, \"\")` call attempts to set the locale to the system default. On the `de_DE` machine, the default locale uses a different number format than `en_US`, specifically with a comma as the decimal separator and a period as the thousands separator.  `locale.atof` then interprets the input string based on this locale, leading to a `ValueError` when it encounters the period as the decimal separator.",
+          "fix": "Change `locale.setlocale(locale.LC_ALL, \"\")` to `locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')` to explicitly set the locale to US English, ensuring consistent parsing.",
+          "seconds": 25.44,
+          "prompt_tokens": 302,
+          "completion_tokens": 184
+        },
+        {
+          "id": "py-long-path-copy",
+          "valid": true,
+          "category_ok": true,
+          "fix_ok": true,
+          "category": "path-and-filesystem",
+          "why": "Windows uses backslashes (\\) as path separators, while the path string in the code uses forward slashes (/). The `shutil.copytree` function expects forward slashes, and the long path length combined with the incorrect separator causes the `FileNotFoundError`.",
+          "fix": "Replace all backslashes with forward slashes in the path string: 'C:/build/artifacts/release/very_long_directory_name/very_long_directory_name/...'.",
+          "seconds": 19.37,
+          "prompt_tokens": 333,
+          "completion_tokens": 129
+        },
+        {
+          "id": "py-open-encoding",
+          "valid": true,
+          "category_ok": true,
+          "fix_ok": true,
+          "category": "encoding-and-locale",
+          "why": "The Windows laptop likely uses a different default text encoding (e.g., 'cp1252' or 'windows-1252') than Linux and macOS, which often default to 'utf-8'. The 'charmap' codec attempts to decode the byte 0x9d using this Windows-specific encoding, failing because it doesn't represent a valid character in that encoding.",
+          "fix": "Add `encoding='utf-8'` when opening the file: `text = open(",
+          "seconds": 18.8,
+          "prompt_tokens": 285,
+          "completion_tokens": 133
+        },
+        {
+          "id": "py-path-backslash",
+          "valid": true,
+          "category_ok": true,
+          "fix_ok": true,
+          "category": "path-and-filesystem",
+          "why": "The Windows path 'BASE_DIR + \\data\\input.csv' uses backslashes as path separators, while the Linux CI server uses forward slashes.  `pd.read_csv` expects forward slashes on Linux, leading to the `FileNotFoundError`.",
+          "fix": "Change the path to use forward slashes: `BASE_DIR + '/data/input.csv'`",
+          "seconds": 16.54,
+          "prompt_tokens": 296,
+          "completion_tokens": 111
+        },
+        {
+          "id": "py-subprocess-npm",
+          "valid": true,
+          "category_ok": false,
+          "fix_ok": false,
+          "category": "path-and-filesystem",
+          "why": "Windows uses backslashes (\\) as path separators, while npm expects forward slashes (/). This mismatch causes the 'FileNotFoundError' because the command interpreter is unable to resolve the path correctly.",
+          "fix": "Change the command to `subprocess.run([",
+          "seconds": 14.86,
+          "prompt_tokens": 272,
+          "completion_tokens": 93
+        },
+        {
+          "id": "rust-command-npm",
+          "valid": true,
+          "category_ok": false,
+          "fix_ok": false,
+          "category": "path-and-filesystem",
+          "why": "The `npm` command is likely expecting a different path separator on Windows (backslashes) compared to Linux and macOS (forward slashes). This causes the `Command::new()` function to construct a path that Windows cannot resolve, resulting in the 'file not found' error.",
+          "fix": "Use forward slashes for paths in the `Command::new()` function, regardless of the operating system.",
+          "seconds": 15.91,
+          "prompt_tokens": 282,
+          "completion_tokens": 111
+        },
+        {
+          "id": "sh-shebang-crlf",
+          "valid": true,
+          "category_ok": true,
+          "fix_ok": true,
+          "category": "line-endings",
+          "why": "The script was created on Windows, which uses carriage return and line feed (CR LF) for line endings. When copied to a Linux server that uses only line feed (LF), the shell interprets the CR as an invalid character, leading to the 'No such file or directory' error.",
+          "fix": "Convert the script to use only LF line endings.",
+          "seconds": 15.13,
+          "prompt_tokens": 298,
+          "completion_tokens": 100
+        },
+        {
+          "id": "yaml-zero-width",
+          "valid": true,
+          "category_ok": false,
+          "fix_ok": false,
+          "category": "encoding-and-locale",
+          "why": "The `settings.yml` file was likely created or saved with Windows line endings (CR LF) while the Python script expects Unix-style line endings (LF). This difference in line ending conventions causes `yaml.safe_load` to misinterpret the `timeout` value, leading to a `KeyError` because the key is not found in the parsed YAML structure.",
+          "fix": "Change the line endings in `settings.yml` to LF.",
+          "seconds": 17.47,
+          "prompt_tokens": 322,
+          "completion_tokens": 121
+        }
+      ]
+    },
+    "grounded": {
+      "summary": {
+        "n": 25,
+        "category": 0.76,
+        "fix": 0.64,
+        "valid": 1.0,
+        "dev_n": 15,
+        "dev_category": 1.0,
+        "real_n": 5,
+        "real_category": 1.0,
+        "heldout_n": 10,
+        "heldout_category": 0.4,
+        "heldout_fix": 0.3,
+        "median_seconds": 20.09
+      },
+      "cases": [
+        {
+          "id": "bidi-trojan-source",
+          "valid": true,
+          "category_ok": true,
+          "fix_ok": true,
+          "category": "invisible-characters",
+          "why": "The condition `level != \"user\"` is failing because of the bidirectional control characters (U+202E, U+2066, U+2069) present in the `level` string. These characters, when represented in different ways (e.g., different encodings or fonts), can appear visually identical but have different underlying Unicode code points, causing the comparison to evaluate to true unexpectedly.",
+          "fix": "Replace the string literal \"user\u2039U+202E\u203a \u2039U+2066\u203a\" with the actual string \"user\" to ensure consistent comparison.",
+          "seconds": 25.88,
+          "prompt_tokens": 542,
+          "completion_tokens": 154
+        },
+        {
+          "id": "csharp-double-parse",
+          "valid": true,
+          "category_ok": true,
+          "fix_ok": false,
+          "category": "encoding-and-locale",
+          "why": "The difference stems from the Windows region setting, which dictates how numbers are formatted. Germany uses a comma (,) as the decimal separator instead of a period (.), causing `double.Parse` to interpret '3.14' as '3,14' when the region is set to Germany.",
+          "fix": "Use `double.Parse(row[",
+          "seconds": 12.07,
+          "prompt_tokens": 280,
+          "completion_tokens": 103
+        },
+        {
+          "id": "csv-bom-header",
+          "valid": true,
+          "category_ok": true,
+          "fix_ok": true,
+          "category": "invisible-characters",
+          "why": "The `users.csv` file contains a Byte Order Mark (BOM) - U+FEFF - at the beginning of the header row, which is being interpreted as part of the 'id' field. This BOM is often added by Excel when exporting CSV files and is not visible in the editor but is present in the string.",
+          "fix": "Add `strip()` to the key to remove the BOM character: `print(row['id'].strip(), row['name'])`",
+          "seconds": 20.47,
+          "prompt_tokens": 447,
+          "completion_tokens": 127
+        },
+        {
+          "id": "git-name-collision",
+          "valid": true,
+          "category_ok": false,
+          "fix_ok": false,
+          "category": "line-endings",
+          "why": "Git stores line endings (CR LF or LF) as part of the file data. macOS and Windows typically use CR LF, while Linux uses LF. This discrepancy causes Git to see the files as different when they contain only text, leading to the missing file observation and a clean status.",
+          "fix": "Configure Git to use LF line endings: `git config core.autocrlf true`",
+          "seconds": 13.43,
+          "prompt_tokens": 280,
+          "completion_tokens": 109
+        },
+        {
+          "id": "go-allowlist-crlf",
+          "valid": true,
+          "category_ok": true,
+          "fix_ok": true,
+          "category": "line-endings",
+          "why": "The Windows machine is interpreting the `allowlist.txt` file, which was likely created with Windows line endings (CRLF), as a stream of lines with CRLF endings. This causes the `strings.Split` function to incorrectly split the string, leading to the 403 error because the `Host` value is not correctly interpreted as a hostname.",
+          "fix": "Convert the `allowlist.txt` file to use only LF line endings before reading it with `os.ReadFile`.",
+          "seconds": 21.65,
+          "prompt_tokens": 457,
+          "completion_tokens": 130
+        },
+        {
+          "id": "java-default-charset",
+          "valid": true,
+          "category_ok": false,
+          "fix_ok": false,
+          "category": "line-endings",
+          "why": "Windows uses Carriage Return Line Feed (CR LF) line endings, while Linux typically uses just Line Feed (LF). When reading the file on Windows, the `Files.readAllBytes` method reads the file as byte sequences containing both CR and LF characters, which are then interpreted as separate line endings, resulting in the display of \"M\u00c3\u00bcller\".",
+          "fix": "Add `.replaceAll(\"\\r\\n\", \"\")` to the end of the line to remove the Windows-specific line ending characters.",
+          "seconds": 16.03,
+          "prompt_tokens": 292,
+          "completion_tokens": 134
+        },
+        {
+          "id": "java-golden-file",
+          "valid": true,
+          "category_ok": true,
+          "fix_ok": false,
+          "category": "line-endings",
+          "why": "The test failure stems from the difference in line ending conventions between Windows (CR LF) and Linux/other platforms (LF). The golden file is likely created with Windows line endings, and `String.join` is interpreting these as two LF characters instead of one, leading to a mismatch.",
+          "fix": "Add `Files.readString(Path.of(\"src/test/resources/report.golden\"), StandardCharsets.UTF_8)` to explicitly specify the encoding to ensure consistent line ending interpretation.",
+          "seconds": 20.89,
+          "prompt_tokens": 402,
+          "completion_tokens": 132
+        },
+        {
+          "id": "js-import-case",
+          "valid": true,
+          "category_ok": true,
+          "fix_ok": true,
+          "category": "path-and-filesystem",
+          "why": "The error occurs because Linux is case-sensitive with file paths, while macOS and Windows (by default) are not. The import statement `./components/button` expects a case-insensitive match, and the file name 'Button.js' differs in case, causing the module resolution to fail on Linux.",
+          "fix": "Rename the file to 'Button.js' to match the import statement.",
+          "seconds": 16.68,
+          "prompt_tokens": 345,
+          "completion_tokens": 109
+        },
+        {
+          "id": "make-python3-windows",
+          "valid": true,
+          "category_ok": false,
+          "fix_ok": false,
+          "category": "path-and-filesystem",
+          "why": "Windows uses backslashes (\\) as path separators, while Linux and macOS use forward slashes (/). The `make` command on Windows likely expects the `python3` executable to be located in a path using backslashes, and is not correctly interpreting the forward slashes in the `PYTHON` variable.",
+          "fix": "Change the `PYTHON` variable to `python3` to use forward slashes.",
+          "seconds": 12.65,
+          "prompt_tokens": 278,
+          "completion_tokens": 113
+        },
+        {
+          "id": "nbsp-docker-run",
+          "valid": true,
+          "category_ok": true,
+          "fix_ok": true,
+          "category": "invisible-characters",
+          "why": "The `apt-get` command contains a non-breaking space (U+00A0) which is not a valid shell separator. This causes the shell to misinterpret the command and not find `apt-get update`.",
+          "fix": "Remove the non-breaking space from the `apt-get` command: `RUN apt-get update && apt-get install -y curl`",
+          "seconds": 19.41,
+          "prompt_tokens": 519,
+          "completion_tokens": 110
+        },
+        {
+          "id": "node-config-bom",
+          "valid": true,
+          "category_ok": false,
+          "fix_ok": true,
+          "category": "encoding-and-locale",
+          "why": "The `config.json` file was last edited on a Windows machine, which uses CRLF line endings and likely a UTF-8 BOM.  JSON parsers expect UTF-8 without a BOM, and the BOM is causing the `SyntaxError`.",
+          "fix": "Add `utf8Bom: false` to the JSON config to explicitly disable BOM handling.",
+          "seconds": 18.7,
+          "prompt_tokens": 472,
+          "completion_tokens": 103
+        },
+        {
+          "id": "php-eol-agent-prompt",
+          "valid": true,
+          "category_ok": true,
+          "fix_ok": true,
+          "category": "line-endings",
+          "why": "The code uses `PHP_EOL`, which on Windows results in Carriage Return Line Feed (CR LF) line endings, while Linux and macOS use just Line Feed (LF). This discrepancy causes the expected string comparisons to fail because the line endings are different, even though the text content appears identical.",
+          "fix": "Replace `PHP_EOL` with `\n` to ensure consistent Line Feed line endings across all platforms.",
+          "seconds": 18.96,
+          "prompt_tokens": 467,
+          "completion_tokens": 113
+        },
+        {
+          "id": "php-eol-jsonl-output",
+          "valid": true,
+          "category_ok": true,
+          "fix_ok": false,
+          "category": "line-endings",
+          "why": "The core issue is the difference in line endings between Windows (CR LF - Carriage Return Line Feed) and Linux/Unix (LF - Line Feed). The `explode(\r\n, $output)` call is designed for Windows, while the `PHP_EOL` constant is used for cross-platform compatibility, but the tool is producing JSON Lines with LF line endings. This causes the `explode` to not correctly split the output on Linux, leading to incorrect parsing.",
+          "fix": "Change `explode(\r\n, $output)` to `explode(\n, $output)` to correctly handle LF line endings.",
+          "seconds": 23.95,
+          "prompt_tokens": 477,
+          "completion_tokens": 154
+        },
+        {
+          "id": "php-eol-llama-prompt",
+          "valid": true,
+          "category_ok": true,
+          "fix_ok": true,
+          "category": "line-endings",
+          "why": "The code uses `PHP_EOL` which, on Windows, results in carriage return line endings (CRLF) instead of the expected line feed (LF) used on Linux. This discrepancy causes the test to fail because the generated string has incorrect line endings for the Windows environment.",
+          "fix": "Replace `PHP_EOL` with `\r\n` to explicitly use CRLF line endings, ensuring compatibility across platforms.",
+          "seconds": 20.63,
+          "prompt_tokens": 489,
+          "completion_tokens": 114
+        },
+        {
+          "id": "php-eol-rst-split",
+          "valid": true,
+          "category_ok": true,
+          "fix_ok": false,
+          "category": "line-endings",
+          "why": "The RstLoader code uses `PHP_EOL` which is CR LF on Windows, causing the split to fail when the input RST file uses LF line endings. This mismatch in line endings leads to incorrect section identification and the failure of the tests on Windows.",
+          "fix": "Replace `PHP_EOL` with `\r\n` to ensure consistent CR LF line endings regardless of the operating system.",
+          "seconds": 18.86,
+          "prompt_tokens": 481,
+          "completion_tokens": 110
+        },
+        {
+          "id": "php-exe-probe",
+          "valid": true,
+          "category_ok": true,
+          "fix_ok": true,
+          "category": "executable-naming",
+          "why": "The code relies on a simple string match ('php') to identify the PHP executable, which doesn't account for the '.exe' extension on Windows.  The PATHEXT mechanism on Windows only resolves extensions when a shell is invoked, leading to a mismatch when the command is executed directly.",
+          "fix": "Modify the code to use `basename` with a case-insensitive comparison to handle the '.exe' extension on Windows, or use `shutil.which` to reliably locate the executable regardless of the OS.",
+          "seconds": 22.97,
+          "prompt_tokens": 467,
+          "completion_tokens": 131
+        },
+        {
+          "id": "py-homoglyph-name",
+          "valid": true,
+          "category_ok": false,
+          "fix_ok": true,
+          "category": "encoding-and-locale",
+          "why": "The mixed-script character U+0430 (CYRILLIC) is present in the code due to the use of Cyrillic characters in the input data. This character is not properly handled by the default Python encoding, leading to the `NameError` because the interpreter cannot find a variable named 'd\u0430ta' with that encoding.",
+          "fix": "Change the variable name to 'data' to match the parameter name and resolve the encoding issue.",
+          "seconds": 19.51,
+          "prompt_tokens": 355,
+          "completion_tokens": 124
+        },
+        {
+          "id": "py-locale-number",
+          "valid": true,
+          "category_ok": true,
+          "fix_ok": true,
+          "category": "encoding-and-locale",
+          "why": "The `locale.atof()` function interprets the input string '1,234.50' based on the current locale settings. On the de_DE machine, the locale uses a comma as the decimal separator, while the code expects a period. This mismatch causes the `ValueError` because the string cannot be correctly parsed as a floating-point number with the comma as the decimal separator.",
+          "fix": "Replace the comma with a period in the input string: `price = locale.atof(",
+          "seconds": 21.9,
+          "prompt_tokens": 362,
+          "completion_tokens": 133
+        },
+        {
+          "id": "py-long-path-copy",
+          "valid": true,
+          "category_ok": true,
+          "fix_ok": false,
+          "category": "path-and-filesystem",
+          "why": "The issue stems from the use of backslashes as path separators in the destination path ('C:\\build\\artifacts\\release\\very_long_directory_name'), which is valid on Windows but interpreted as a literal character on Linux and macOS.  The `shutil.copytree` function expects path separators to be forward slashes ('/') regardless of the operating system.",
+          "fix": "Replace all backslashes in the destination path with forward slashes: 'C:/build/artifacts/release/very_long_directory_name'.",
+          "seconds": 24.4,
+          "prompt_tokens": 509,
+          "completion_tokens": 140
+        },
+        {
+          "id": "py-open-encoding",
+          "valid": true,
+          "category_ok": true,
+          "fix_ok": true,
+          "category": "encoding-and-locale",
+          "why": "The Windows system is likely using the default 'charmap' encoding (often cp1252), which doesn't support the Unicode characters present in the file. The Linux and macOS systems are using UTF-8, a more comprehensive encoding that can handle a wider range of characters.",
+          "fix": "Add the `encoding='utf-8'` argument to the `open()` function to explicitly specify the UTF-8 encoding.",
+          "seconds": 20.09,
+          "prompt_tokens": 358,
+          "completion_tokens": 116
+        },
+        {
+          "id": "py-path-backslash",
+          "valid": true,
+          "category_ok": true,
+          "fix_ok": true,
+          "category": "path-and-filesystem",
+          "why": "The code uses a Windows-style path separator (backslash) to construct the file path, while the Linux CI server expects a Unix-style path separator (slash). This causes the `FileNotFoundError` because the server cannot find the file using the Windows path format.",
+          "fix": "Replace all backslashes with forward slashes in the file path: `df = pd.read_csv(BASE_DIR + '\\data\\input.csv')` should be `df = pd.read_csv(BASE_DIR + '/data/input.csv')`",
+          "seconds": 24.34,
+          "prompt_tokens": 382,
+          "completion_tokens": 145
+        },
+        {
+          "id": "py-subprocess-npm",
+          "valid": true,
+          "category_ok": true,
+          "fix_ok": true,
+          "category": "executable-naming",
+          "why": "On Windows, `npm` is executed as `npm.cmd`, and the shell relies on `PATHEXT` to find the executable. The code doesn't explicitly specify the `.cmd` extension, leading to the `FileNotFoundError` because Windows doesn't automatically append it when searching the PATH.",
+          "fix": "Modify the command to `subprocess.run([",
+          "seconds": 18.43,
+          "prompt_tokens": 364,
+          "completion_tokens": 102
+        },
+        {
+          "id": "rust-command-npm",
+          "valid": true,
+          "category_ok": false,
+          "fix_ok": false,
+          "category": "path-and-filesystem",
+          "why": "The `npm` command is likely expecting a different path separator on Windows (backslash instead of forward slash). This causes the operating system to be unable to locate the executable, resulting in the 'The system cannot find the file specified' error.",
+          "fix": "Use a platform-independent way to construct the command, such as `format!(",
+          "seconds": 13.68,
+          "prompt_tokens": 282,
+          "completion_tokens": 106
+        },
+        {
+          "id": "sh-shebang-crlf",
+          "valid": true,
+          "category_ok": true,
+          "fix_ok": true,
+          "category": "line-endings",
+          "why": "The script was created on Windows and contains carriage return characters (CR) in addition to line feed characters (LF). This is because Windows uses CR LF for line endings, while Linux uses only LF. The shell interpreter then fails to recognize the 'bash' command because it's expecting a LF, but receives a CR followed by an LF.",
+          "fix": "Convert the script to use only LF line endings. This can be done by editing the file in a text editor that supports Unix line endings or by using a tool like `dos2unix` to convert the file.",
+          "seconds": 23.84,
+          "prompt_tokens": 403,
+          "completion_tokens": 144
+        },
+        {
+          "id": "yaml-zero-width",
+          "valid": true,
+          "category_ok": true,
+          "fix_ok": true,
+          "category": "invisible-characters",
+          "why": "The zero-width character U+200B in the settings.yml file is causing the YAML parser to interpret the key and value as two separate keys, leading to the KeyError. This is because YAML treats whitespace inconsistently, and U+200B effectively inserts an empty key-value pair.",
+          "fix": "Remove the zero-width character from the settings.yml file.",
+          "seconds": 21.07,
+          "prompt_tokens": 483,
+          "completion_tokens": 107
+        }
+      ]
+    }
+  },
+  "lore_only": {
+    "summary": {
+      "n": 25,
+      "category": 0.72,
+      "fix": 0.0,
+      "valid": 0.76,
+      "dev_n": 15,
+      "dev_category": 1.0,
+      "real_n": 5,
+      "real_category": 1.0,
+      "heldout_n": 10,
+      "heldout_category": 0.3,
+      "heldout_fix": 0.0,
+      "median_seconds": null
+    },
+    "cases": [
+      {
+        "id": "bidi-trojan-source",
+        "valid": true,
+        "category_ok": true,
+        "fix_ok": false,
+        "category": "invisible-characters"
+      },
+      {
+        "id": "csharp-double-parse",
+        "valid": false,
+        "category_ok": false,
+        "fix_ok": false,
+        "category": null
+      },
+      {
+        "id": "csv-bom-header",
+        "valid": true,
+        "category_ok": true,
+        "fix_ok": false,
+        "category": "invisible-characters"
+      },
+      {
+        "id": "git-name-collision",
+        "valid": false,
+        "category_ok": false,
+        "fix_ok": false,
+        "category": null
+      },
+      {
+        "id": "go-allowlist-crlf",
+        "valid": true,
+        "category_ok": true,
+        "fix_ok": false,
+        "category": "line-endings"
+      },
+      {
+        "id": "java-default-charset",
+        "valid": false,
+        "category_ok": false,
+        "fix_ok": false,
+        "category": null
+      },
+      {
+        "id": "java-golden-file",
+        "valid": true,
+        "category_ok": true,
+        "fix_ok": false,
+        "category": "line-endings"
+      },
+      {
+        "id": "js-import-case",
+        "valid": true,
+        "category_ok": true,
+        "fix_ok": false,
+        "category": "path-and-filesystem"
+      },
+      {
+        "id": "make-python3-windows",
+        "valid": false,
+        "category_ok": false,
+        "fix_ok": false,
+        "category": null
+      },
+      {
+        "id": "nbsp-docker-run",
+        "valid": true,
+        "category_ok": true,
+        "fix_ok": false,
+        "category": "invisible-characters"
+      },
+      {
+        "id": "node-config-bom",
+        "valid": true,
+        "category_ok": true,
+        "fix_ok": false,
+        "category": "invisible-characters"
+      },
+      {
+        "id": "php-eol-agent-prompt",
+        "valid": true,
+        "category_ok": true,
+        "fix_ok": false,
+        "category": "line-endings"
+      },
+      {
+        "id": "php-eol-jsonl-output",
+        "valid": true,
+        "category_ok": true,
+        "fix_ok": false,
+        "category": "line-endings"
+      },
+      {
+        "id": "php-eol-llama-prompt",
+        "valid": true,
+        "category_ok": true,
+        "fix_ok": false,
+        "category": "line-endings"
+      },
+      {
+        "id": "php-eol-rst-split",
+        "valid": true,
+        "category_ok": true,
+        "fix_ok": false,
+        "category": "line-endings"
+      },
+      {
+        "id": "php-exe-probe",
+        "valid": true,
+        "category_ok": true,
+        "fix_ok": false,
+        "category": "executable-naming"
+      },
+      {
+        "id": "py-homoglyph-name",
+        "valid": false,
+        "category_ok": false,
+        "fix_ok": false,
+        "category": null
+      },
+      {
+        "id": "py-locale-number",
+        "valid": true,
+        "category_ok": true,
+        "fix_ok": false,
+        "category": "encoding-and-locale"
+      },
+      {
+        "id": "py-long-path-copy",
+        "valid": true,
+        "category_ok": false,
+        "fix_ok": false,
+        "category": "line-endings"
+      },
+      {
+        "id": "py-open-encoding",
+        "valid": true,
+        "category_ok": true,
+        "fix_ok": false,
+        "category": "encoding-and-locale"
+      },
+      {
+        "id": "py-path-backslash",
+        "valid": true,
+        "category_ok": true,
+        "fix_ok": false,
+        "category": "path-and-filesystem"
+      },
+      {
+        "id": "py-subprocess-npm",
+        "valid": true,
+        "category_ok": true,
+        "fix_ok": false,
+        "category": "executable-naming"
+      },
+      {
+        "id": "rust-command-npm",
+        "valid": false,
+        "category_ok": false,
+        "fix_ok": false,
+        "category": null
+      },
+      {
+        "id": "sh-shebang-crlf",
+        "valid": true,
+        "category_ok": true,
+        "fix_ok": false,
+        "category": "line-endings"
+      },
+      {
+        "id": "yaml-zero-width",
+        "valid": true,
+        "category_ok": true,
+        "fix_ok": false,
+        "category": "invisible-characters"
+      }
+    ]
+  }
+}

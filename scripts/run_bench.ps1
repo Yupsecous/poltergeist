@@ -20,20 +20,27 @@ $runs = @(
     @{ Label = "qwen2.5-3b"; File = "qwen2.5-3b-instruct-q4_k_m.gguf" },
     @{ Label = "gemma-3-4b"; File = "gemma-3-4b-it-Q4_K_M.gguf" }
 )
-if ($Only.Count -gt 0) { $runs = $runs | Where-Object { $Only -contains $_.Label } }
+if ($Only.Count -gt 0) {
+    # "-File" passes "a,b" as one string, so split it here.
+    $wanted = $Only | ForEach-Object { $_ -split "," } | ForEach-Object { $_.Trim() }
+    $runs = $runs | Where-Object { $wanted -contains $_.Label }
+}
 
 foreach ($run in $runs) {
     $model = Join-Path $Models $run.File
     if (-not (Test-Path $model)) { throw "missing model file: $model" }
+    # A server left over from an earlier run would answer the health check, and its model would be benchmarked under this label.
+    if (Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue) { throw "port $Port is already in use; stop the other llama-server first" }
     Write-Host "=== $($run.Label)"
-    $server = Start-Process -FilePath $Server -PassThru -WindowStyle Hidden `
+    # Not "$server": variable names are case-insensitive, and that would overwrite the -Server parameter.
+    $proc = Start-Process -FilePath $Server -PassThru -WindowStyle Hidden `
         -RedirectStandardOutput "runtime\server-$($run.Label).out.log" -RedirectStandardError "runtime\server-$($run.Label).err.log" `
         -ArgumentList @("--model", $model, "--host", "127.0.0.1", "--port", $Port, "--ctx-size", 4096, "--threads", $Threads, "--no-webui")
     try {
         $ready = $false
         for ($i = 0; $i -lt 180 -and -not $ready; $i++) {
             Start-Sleep -Seconds 1
-            if ($server.HasExited) { throw "llama-server exited early; see runtime\server-$($run.Label).err.log" }
+            if ($proc.HasExited) { throw "llama-server exited early; see runtime\server-$($run.Label).err.log" }
             try { $ready = (Invoke-WebRequest "http://127.0.0.1:$Port/health" -UseBasicParsing -TimeoutSec 2).StatusCode -eq 200 } catch { }
         }
         if (-not $ready) { throw "llama-server did not become ready in 180 seconds" }
@@ -41,8 +48,11 @@ foreach ($run in $runs) {
         if ($LASTEXITCODE -ne 0) { throw "bench failed for $($run.Label)" }
     }
     finally {
-        if (-not $server.HasExited) { Stop-Process -Id $server.Id -Force }
+        if (-not $proc.HasExited) { Stop-Process -Id $proc.Id -Force }
     }
 }
 
-python -m poltergeist report (Get-ChildItem results\*.json | ForEach-Object { $_.FullName }) | Tee-Object -FilePath results\TABLE.md
+# Not Tee-Object: Windows PowerShell 5.1 would save the table as UTF-16 with a byte order mark.
+$table = python -m poltergeist report (Get-ChildItem results\*.json | ForEach-Object { $_.FullName })
+$table | Write-Host
+[System.IO.File]::WriteAllText((Join-Path $root "results\TABLE.md"), (($table -join "`n") + "`n"), (New-Object System.Text.UTF8Encoding($false)))

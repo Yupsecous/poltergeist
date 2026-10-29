@@ -90,6 +90,7 @@ __EVIDENCE__
 <h2>4. How well do small local models read the bugs?</h2>
 <p>Fifteen development cases (five from real bugs in symfony/ai) and ten held-out cases, written after the platform facts were frozen.</p>
 __RESULTS__
+<p class="note">Read the held-out column. The platform facts were written while looking at the development cases, so a model that is shown them and scores 100% there is copying, not reasoning. Ten cases means one case is ten points, and the category is scored while the explanation is not.</p>
 </main>
 </body>
 </html>

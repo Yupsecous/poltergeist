@@ -86,7 +86,8 @@ haunted/users.csv
 
 <h2>4. How well do small local models read the bugs?</h2>
 <p>Fifteen development cases (five from real bugs in symfony/ai) and ten held-out cases, written after the platform facts were frozen.</p>
-<p>No model results have been recorded yet.</p>
+<div class="scroll"><table><thead><tr><th>Model</th><th>Prompt</th><th>Category, dev (15)</th><th>of which real (5)</th><th>Category, held-out (10)</th><th>Fix accepted, held-out</th><th>Valid JSON</th><th>Median time</th></tr></thead><tbody><tr><td>gemma-3-1b</td><td>plain</td><td>20%</td><td>0%</td><td>30%</td><td>10%</td><td>100%</td><td>6s</td></tr><tr><td>gemma-3-1b</td><td>grounded</td><td>47%</td><td>20%</td><td>30%</td><td>30%</td><td>100%</td><td>7s</td></tr><tr><td>gemma-3-4b</td><td>plain</td><td>67%</td><td>80%</td><td>40%</td><td>30%</td><td>100%</td><td>17s</td></tr><tr><td>gemma-3-4b</td><td>grounded</td><td>100%</td><td>100%</td><td>40%</td><td>30%</td><td>100%</td><td>20s</td></tr><tr><td>qwen2.5-3b</td><td>plain</td><td>80%</td><td>100%</td><td>80%</td><td>30%</td><td>100%</td><td>11s</td></tr><tr><td>qwen2.5-3b</td><td>grounded</td><td>100%</td><td>100%</td><td>90%</td><td>50%</td><td>100%</td><td>10s</td></tr><tr><td>no model: platform facts only</td><td>lookup</td><td>100%</td><td>100%</td><td>30%</td><td>-</td><td>-</td><td>-</td></tr></tbody></table></div>
+<p class="note">Read the held-out column. The platform facts were written while looking at the development cases, so a model that is shown them and scores 100% there is copying, not reasoning. Ten cases means one case is ten points, and the category is scored while the explanation is not.</p>
 </main>
 </body>
 </html>

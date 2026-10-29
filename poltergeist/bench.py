@@ -98,7 +98,7 @@ def run(
 ) -> dict:
     result: dict = {
         "label": label,
-        "model": client.model_name(),
+        "model": client.model_name().replace("\\", "/").rsplit("/", 1)[-1],
         "date": datetime.date.today().isoformat(),
         "modes": {},
         "lore_only": None,

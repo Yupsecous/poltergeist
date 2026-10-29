@@ -12,6 +12,9 @@ from .ghosts import Report, reveal, scan_text
 
 SKIP_DIRS = {".git", ".hg", ".svn", "node_modules", "vendor", "__pycache__", ".venv", "venv", ".mypy_cache"}
 MAX_BYTES = 2_000_000
+# Reasons for skipping a file that is probably text; `scan` names these files, because they may hold ghosts it cannot see.
+NOT_UTF8 = "not valid UTF-8"
+UTF16 = "starts with a UTF-16 byte order mark"
 
 # Never legitimate inside source code, safe to drop by default.
 _ALWAYS = "\ufeff\u200b\u2060\u180e" + "".join(map(chr, [*range(0x202A, 0x202F), *range(0x2066, 0x206A)]))
@@ -61,12 +64,14 @@ def read_text(path: Path) -> tuple[str | None, str]:
         data = path.read_bytes()
     except OSError as error:
         return None, f"unreadable: {error.strerror or error}"
+    if data[:2] in (b"\xff\xfe", b"\xfe\xff"):
+        return None, UTF16
     if b"\0" in data[:8192]:
         return None, "binary"
     try:
         return data.decode("utf-8"), ""
     except UnicodeDecodeError:
-        return None, "not valid UTF-8"
+        return None, NOT_UTF8
 
 
 def scan_path(path: Path) -> Report:
